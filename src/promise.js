@@ -31,6 +31,14 @@ class OwnPromise {
       reject(e);
     }
   }
+
+  then(res, rej) {
+    if (this.state === RESOLVED) {
+      res(this.value);
+    }
+    this.callbacks.push({ res, rej });
+    return this;
+  }
 }
 
 module.exports = OwnPromise;
