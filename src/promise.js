@@ -4,10 +4,19 @@ const PENDING = 'PENDING';
 
 class OwnPromise {
   constructor(executor) {
+    if (typeof executor !== 'function') {
+      throw new TypeError('Executor must be a function');
+    }
     this.state = PENDING;
     this.callbacks = [];
 
     const resolve = data => {
+      if (data instanceof OwnPromise) {
+        data.then(res => {
+          this.value = res;
+        });
+      }
+
       if (this.state !== PENDING) {
         return;
       }
@@ -32,9 +41,6 @@ class OwnPromise {
 
       this.callbacks.forEach(({ rej }) => {
         this.value = rej(this.value);
-
-        // Добавить проверку isResolve/isReject
-        // Возможно, перенести в const reject // this.callbacks.forEach(({ res }) / this.callbacks.forEach(({ rej }
       });
     };
 
@@ -51,6 +57,26 @@ class OwnPromise {
     }
     this.callbacks.push({ res, rej });
     return this;
+  }
+
+  static resolve(data) {
+    if (typeof this !== 'function') {
+      throw new TypeError('this is not a constructor');
+    }
+
+    if (data instanceof OwnPromise) {
+      return data;
+    }
+
+    return new OwnPromise(resolve => resolve(data));
+  }
+
+  static reject(error) {
+    if (typeof this !== 'function') {
+      throw new TypeError('this is not a constructor');
+    }
+
+    return new OwnPromise((resolve, reject) => reject(error));
   }
 
   catch(rej) {
