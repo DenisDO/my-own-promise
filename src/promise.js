@@ -2,8 +2,6 @@ const RESOLVED = 'RESOLVED';
 const REJECTED = 'REJECTED';
 const PENDING = 'PENDING';
 
-let cb = null;
-
 class OwnPromise {
   constructor(executor) {
     this.state = PENDING;
@@ -16,13 +14,28 @@ class OwnPromise {
 
       this.state = RESOLVED;
       this.value = data;
-      this.callbacks.forEach(({ res, rej }) => {
+      this.callbacks.forEach(({ res }) => {
         this.value = res(this.value);
-      });
+
+        // Добавить проверку isResolve/isReject
+        // Возможно, перенести в const reject // this.callbacks.forEach(({ res }) / this.callbacks.forEach(({ rej }
+      }); // В forEach создаем 2 переменные через деструктуризацию для объекта в массиве
     }; // Контекстом будет этот промис, поэтому не function()
 
     const reject = error => {
+      if (this.state !== 'PENDING') {
+        return;
+      }
 
+      this.state = REJECTED;
+      this.value = error;
+
+      this.callbacks.forEach(({ rej }) => {
+        this.value = rej(this.value);
+
+        // Добавить проверку isResolve/isReject
+        // Возможно, перенести в const reject // this.callbacks.forEach(({ res }) / this.callbacks.forEach(({ rej }
+      });
     };
 
     try {
@@ -46,3 +59,13 @@ class OwnPromise {
 }
 
 module.exports = OwnPromise;
+
+const p = new OwnPromise(function(resolve, reject) {
+  setTimeout(() => {
+    resolve(3);
+  }, 1000);
+});
+
+p
+.then(data => {console.log(data); return 5;})
+.then(data => {console.log(data);})
