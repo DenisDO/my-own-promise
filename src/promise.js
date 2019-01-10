@@ -39,6 +39,10 @@ class OwnPromise {
     this.callbacks.push({ res, rej });
     return this;
   }
+
+  catch(rej) {
+    return this.then(undefined, rej);
+  }
 }
 
 module.exports = OwnPromise;
