@@ -153,7 +153,7 @@ class OwnPromise {
   }
 }
 
-// module.exports = OwnPromise;
+module.exports = OwnPromise;
 
 const p1 = new OwnPromise(function(resolve, reject) {
   resolve(1);
