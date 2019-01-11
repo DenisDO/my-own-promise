@@ -55,17 +55,22 @@ class OwnPromise {
     return new OwnPromise((resolve, reject) => {
       const _onFulfilled = value => {
         try {
-          resolve(res(value));
+          resolve(typeof res === 'function' ? res(value) : value);
         } catch (err) {
           reject(err);
         }
       };
 
       const _onRejected = err => {
-        try {
-          resolve(rej(err));
-        } catch (error) {
-          reject(error);
+        if (rej && typeof rej === 'function') {
+          try {
+            resolve(rej(err));
+          } catch (error) {
+            reject(error);
+          }
+        } else {
+          reject(err);
+          throw new TypeError('callback have to be a function');
         }
       };
 
@@ -117,12 +122,12 @@ p1
 .then(data => {console.log(data); return 5;})
 .then(data => {console.log(data);});
 
-const p = new OwnPromise(function(resolve, reject) {
-  setTimeout(() => {
-    resolve(3);
-  }, 1000);
-});
+// const p = new OwnPromise(function(resolve, reject) {
+//   setTimeout(() => {
+//     resolve(3);
+//   }, 1000);
+// });
 
-p
-.then(data => {console.log(data); return 5;})
-.then(data => {console.log(data);})
+// p
+// .then(data => {console.log(data); return 5;})
+// .then(data => {console.log(data);})
