@@ -52,11 +52,34 @@ class OwnPromise {
   }
 
   then(res, rej) {
-    if (this.state === RESOLVED) {
-      res(this.value);
-    }
-    this.callbacks.push({ res, rej });
-    return this;
+    return new OwnPromise((resolve, reject) => {
+      const _onFulfilled = value => {
+        try {
+          resolve(res(value));
+        } catch (err) {
+          reject(err);
+        }
+      };
+
+      const _onRejected = err => {
+        try {
+          resolve(rej(err));
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      if (this.state === RESOLVED) {
+        setTimeout(_onFulfilled, 0, this.value);
+      } else if (this.state === REJECTED) {
+        setTimeout(_onRejected, 0, this.value);
+      } else {
+        this.callbacks.push({ 
+          res: _onFulfilled,
+          rej: _onRejected
+        });
+      }
+    });
   }
 
   static resolve(data) {
@@ -85,6 +108,14 @@ class OwnPromise {
 }
 
 module.exports = OwnPromise;
+
+const p1 = new OwnPromise(function(resolve, reject) {
+  resolve(3);
+});
+
+p1
+.then(data => {console.log(data); return 5;})
+.then(data => {console.log(data);});
 
 const p = new OwnPromise(function(resolve, reject) {
   setTimeout(() => {
