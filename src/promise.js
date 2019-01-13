@@ -116,8 +116,7 @@ class OwnPromise {
       const isIterable = object => object !== null && typeof object[Symbol.iterator] === 'function';
 
       if (!isIterable(iterable)) {
-        console.log('NON-ITERABLE');
-        throw new TypeError('Non-iterable value');
+        throw new TypeError('ERROR');
       }
 
       const isEmptyIterable = iterable => {
@@ -127,24 +126,26 @@ class OwnPromise {
         return false;
       };
 
-      if (!(isEmptyIterable(iterable))) {
-        console.log('EMPTY');
+      if (!isEmptyIterable(iterable)) {
         return resolve([]);
       }
 
-      const result = [];
+      const values = new Array(iterable.length);
+      let counter = 0;
+
+      const tryResolve = i => value => {
+        values[i] = value;
+        counter += 1;
+
+        if (counter === iterable.length) {
+          resolve(values);
+        }
+      };
 
       for (let i = 0; i < iterable.length; i++) {
-        if (iterable[i].state === RESOLVED) {
-          result.push(iterable[i].value);
-        } else if (iterable[i].state === REJECTED) {
-          console.log(iterable[i].value);
-        } else {
-          resolve(iterable[i]);
-        }
+        const promise = iterable[i];
+        promise.then(tryResolve(i), reject);
       }
-
-      console.log(result);
     });
   }
 
@@ -153,7 +154,7 @@ class OwnPromise {
   }
 }
 
-module.exports = OwnPromise;
+// module.exports = OwnPromise;
 
 const p1 = new OwnPromise(function(resolve, reject) {
   resolve(1);
@@ -164,7 +165,7 @@ const p2 = new OwnPromise(function(resolve, reject) {
 });
 
 const p3 = new OwnPromise(function(resolve, reject) {
-  resolve(3);
+  reject(3);
 });
 
 const p4 = new OwnPromise(function(resolve, reject) {
@@ -178,7 +179,7 @@ const p4 = new OwnPromise(function(resolve, reject) {
 // p1
 // .then(data => {console.log('2', data);});
 
-OwnPromise.all([p1, p2, p3, p4]);
+const p = OwnPromise.all([p1, p2, p3, p4]);
 
 // const p = new OwnPromise(function(resolve, reject) {
 //   setTimeout(() => {
