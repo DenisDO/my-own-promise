@@ -143,7 +143,10 @@ class OwnPromise {
       };
 
       for (let i = 0; i < iterable.length; i++) {
-        const promise = iterable[i];
+        const promise = iterable[i] instanceof OwnPromise
+          ? iterable[i]
+          : new OwnPromise(res => { res(iterable[i]); });
+
         promise.then(tryResolve(i), reject);
       }
     });
