@@ -24,7 +24,7 @@ class OwnPromise {
       this.state = RESOLVED;
       this.value = data;
       this.callbacks.forEach(({ res }) => {
-        this.value = res(data);
+        this.value = res(this.value);
 
         // Добавить проверку isResolve/isReject
         // Возможно, перенести в const reject // this.callbacks.forEach(({ res }) / this.callbacks.forEach(({ rej }
@@ -92,7 +92,7 @@ class OwnPromise {
       throw new TypeError('this is not a constructor');
     }
 
-    if (data && typeof data === 'object' && data.constructor === OwnPromise) {
+    if (data instanceof OwnPromise) {
       return data;
     }
 
