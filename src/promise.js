@@ -149,6 +149,24 @@ class OwnPromise {
     });
   }
 
+  static race(iterable) {
+    if (typeof this !== 'function') {
+      throw new TypeError('this is not a constructor');
+    }
+
+    return new OwnPromise((resolve, reject) => {
+      const isIterable = object => object !== null && typeof object[Symbol.iterator] === 'function';
+
+      if (!isIterable(iterable)) {
+        throw new TypeError('ERROR');
+      }
+
+      for (let i = 0; i < iterable.length; i++) {
+        iterable[i].then(resolve, reject);
+      }
+    });
+  }
+
   catch(rej) {
     return this.then(undefined, rej);
   }
