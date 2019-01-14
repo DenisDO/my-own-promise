@@ -171,7 +171,7 @@ class OwnPromise {
   }
 
   catch(rej) {
-    return this.then(undefined, rej);
+    return this.then(null, rej);
   }
 }
 
