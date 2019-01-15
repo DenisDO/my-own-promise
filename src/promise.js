@@ -52,7 +52,7 @@ class OwnPromise {
   }
 
   then(res, rej) {
-    return new OwnPromise((resolve, reject) => {
+    return new this.constructor((resolve, reject) => {
       const _onFulfilled = value => {
         try {
           resolve(typeof res === 'function' ? res(value) : value);
@@ -96,7 +96,12 @@ class OwnPromise {
       return data;
     }
 
-    return new OwnPromise(resolve => resolve(data));
+    return new this((resolve, reject) => {
+      if (typeof resolve !== 'function' || typeof reject !== 'function') {
+        throw new TypeError('Not a function');
+      }
+      resolve(data);
+    });
   }
 
   static reject(error) {
@@ -104,7 +109,12 @@ class OwnPromise {
       throw new TypeError('this is not a constructor');
     }
 
-    return new OwnPromise((resolve, reject) => reject(error));
+    return new this((resolve, reject) => {
+      if (typeof resolve !== 'function' || typeof reject !== 'function') {
+        throw new TypeError('Not a function');
+      }
+      reject(error);
+    });
   }
 
   static all(iterable) {
@@ -112,7 +122,11 @@ class OwnPromise {
       throw new TypeError('this is not a constructor');
     }
 
-    return new OwnPromise((resolve, reject) => {
+    return new this((resolve, reject) => {
+      if (typeof resolve !== 'function' || typeof reject !== 'function') {
+        throw new TypeError('Not a function');
+      }
+
       const isIterable = object => object !== null && typeof object[Symbol.iterator] === 'function';
 
       if (!isIterable(iterable)) {
@@ -157,7 +171,7 @@ class OwnPromise {
       throw new TypeError('this is not a constructor');
     }
 
-    return new OwnPromise((resolve, reject) => {
+    return new this((resolve, reject) => {
       const isIterable = object => object !== null && typeof object[Symbol.iterator] === 'function';
 
       if (!isIterable(iterable)) {
