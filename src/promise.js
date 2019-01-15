@@ -10,27 +10,6 @@ class OwnPromise {
     this.state = PENDING;
     this.callbacks = [];
 
-    const resolve = data => {
-      if (data instanceof OwnPromise) {
-        data.then(res => {
-          this.value = res;
-        });
-      }
-
-      if (this.state !== PENDING) {
-        return;
-      }
-
-      this.state = RESOLVED;
-      this.value = data;
-      this.callbacks.forEach(({ res }) => {
-        this.value = res(data);
-
-        // Добавить проверку isResolve/isReject
-        // Возможно, перенести в const reject // this.callbacks.forEach(({ res }) / this.callbacks.forEach(({ rej }
-      }); // В forEach создаем 2 переменные через деструктуризацию для объекта в массиве
-    }; // Контекстом будет этот промис, поэтому не function()
-
     const reject = error => {
       if (this.state !== 'PENDING') {
         return;
@@ -44,11 +23,46 @@ class OwnPromise {
       });
     };
 
+    const resolve = data => {
+      if (this.state !== PENDING) {
+        return;
+      }
+
+      if (this.isThenable(data) && data.state === PENDING) {
+        data.then(v => resolve(v), v => reject(v));
+      }
+
+      this.state = this.isThenable(data) ? data.state : RESOLVED;
+      this.value = this.isThenable(data) ? data.value : data;
+
+      this.callHandlers();
+    };
+
     try {
       executor(resolve, reject);
     } catch (e) {
       reject(e);
     }
+  }
+
+  isThenable(data) {
+    return data && data.then;
+  }
+
+  callHandlers() {
+    const run = () => {
+      this.callbacks.forEach((callback, i) => {
+        const { res, rej } = callback;
+
+        if (this.callbacks.length === i) {
+          this.value = this.state === RESOLVED ? res(this.value) : rej(this.value);
+        }
+
+        this.state === RESOLVED ? res(this.value) : rej(this.value);
+      });
+    };
+
+    setTimeout(run, 0);
   }
 
   then(res, rej) {
@@ -70,19 +84,17 @@ class OwnPromise {
           }
         } else {
           reject(err);
-          throw new TypeError('callback have to be a function');
         }
       };
 
-      if (this.state === RESOLVED) {
-        setTimeout(_onFulfilled, 0, this.value);
-      } else if (this.state === REJECTED) {
-        setTimeout(_onRejected, 0, this.value);
+      if (this.state === PENDING) {
+        this.callbacks.push({ res: _onFulfilled, rej: _onRejected });
+      } else if (this.callbacks.length > 0) {
+        this.callHandlers();
       } else {
-        this.callbacks.push({ 
-          res: _onFulfilled,
-          rej: _onRejected
-        });
+        this.state === RESOLVED
+          ? setTimeout(() => _onFulfilled(this.value), 0)
+          : setTimeout(() => _onRejected(this.value), 0);
       }
     });
   }
@@ -200,7 +212,7 @@ const p2 = new OwnPromise(function(resolve, reject) {
 });
 
 const p3 = new OwnPromise(function(resolve, reject) {
-  reject(3);
+  resolve(3);
 });
 
 const p4 = new OwnPromise(function(resolve, reject) {
@@ -214,7 +226,7 @@ const p4 = new OwnPromise(function(resolve, reject) {
 // p1
 // .then(data => {console.log('2', data);});
 
-const p = OwnPromise.all([p1, p2, p3, p4]);
+// const p = OwnPromise.all([p1, p2, p3, p4]);
 
 // const p = new OwnPromise(function(resolve, reject) {
 //   setTimeout(() => {
