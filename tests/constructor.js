@@ -94,7 +94,12 @@ describe("25.4.3.1 Promise ( executor )", function () {
 });
 
 describe("25.4.3.1.1 InitializePromise ( promise, executor )", function () {
-    it("returns a promise");
+    it("returns a promise", function () {
+        const p = new Promise(res => {res(true)});
+        const result = (p instanceof Promise) ? true : false;
+        assert.equal(true, result);
+    }
+);
     it("invokes the executor with 'this' = 'undefined'", function () {
         var savedThis;
         var p = new Promise(function () {
