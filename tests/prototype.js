@@ -30,7 +30,14 @@ describe("25.4.5.1 Promise.prototype.catch( onRejected )", function () {
         const result = (typeof Promise.prototype.catch === 'function') ? true : false;
         assert.equal(true, result);
     });
-    it("expects 'this' to be a Promise");
+    it("expects 'this' to be a Promise", function () {
+        const p = new Promise((res, rej) => {
+            res(1);
+            rej('err');
+        });
+        const result = (p.catch(v => v) instanceof Promise) ? true : false;
+        assert.equal(true, result);      
+    });
     it("takes one argument, a function");
     it("is equivalent to 'promise.then(undefined, fn)'");
 });
