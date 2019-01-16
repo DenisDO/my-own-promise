@@ -30,10 +30,10 @@ class OwnPromise {
 
       if (this.isThenable(data) && data.state === PENDING) {
         data.then(v => resolve(v), v => reject(v));
+      } else {
+        this.state = this.isThenable(data) ? data.state : RESOLVED;
+        this.value = this.isThenable(data) ? data.value : data;
       }
-
-      this.state = this.isThenable(data) ? data.state : RESOLVED;
-      this.value = this.isThenable(data) ? data.value : data;
 
       this.callHandlers();
     };
@@ -203,21 +203,21 @@ class OwnPromise {
 
 module.exports = OwnPromise;
 
-const p1 = new OwnPromise(function(resolve, reject) {
-  resolve(1);
-});
+// const p1 = new OwnPromise(function(resolve, reject) {
+//   resolve(1);
+// });
 
-const p2 = new OwnPromise(function(resolve, reject) {
-  resolve(2);
-});
+// const p2 = new OwnPromise(function(resolve, reject) {
+//   resolve(2);
+// });
 
-const p3 = new OwnPromise(function(resolve, reject) {
-  resolve(3);
-});
+// const p3 = new OwnPromise(function(resolve, reject) {
+//   resolve(3);
+// });
 
-const p4 = new OwnPromise(function(resolve, reject) {
-  resolve(4);
-});
+// const p4 = new OwnPromise(function(resolve, reject) {
+//   resolve(4);
+// });
 
 // p1
 // .then(data => {console.log('1', data); return 5;})

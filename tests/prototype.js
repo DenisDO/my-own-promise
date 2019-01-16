@@ -17,25 +17,44 @@ describe("25.4.4.2 Promise.prototype", function () {
 });
 
 describe("25.4.5 Properties of the Promise Prototype Object", function () {
-    it("is an ordinary object");
+    it("is an ordinary object", function () {
+        const result = (Promise instanceof Object) ? true : false;
+        assert.equal(true, result);
+    });
+
     it("is not a Promise"); // implied
 });
 
 describe("25.4.5.1 Promise.prototype.catch( onRejected )", function () {
-    it("is a function");
+    it("is a function", function () {
+        const result = (typeof Promise.prototype.catch === 'function') ? true : false;
+        assert.equal(true, result);
+    });
     it("expects 'this' to be a Promise");
     it("takes one argument, a function");
     it("is equivalent to 'promise.then(undefined, fn)'");
 });
 
 describe("25.4.5.2 Promise.prototype.constructor", function () {
-    it("is an object");
-    it("is a function");
-    it("is the Promise constructor");
+    it("is an object", function () {
+        const result = (Promise.prototype.constructor instanceof Object) ? true : false;
+        assert.equal(true, result);
+    });
+    it("is a function", function () {
+        const result = (typeof Promise.prototype.constructor === 'function') ? true : false;
+        assert.equal(true, result);
+    });
+    it("is the Promise constructor", function () {
+        const result = (Promise.prototype.constructor === Promise) ? true : false;
+        assert.equal(true, result);
+    });
 });
 
 describe("25.4.5.3 Promise.prototype.then", function () {
-    it("is a function");
+    it("is a function", function () {
+        const result = (typeof Promise.prototype.then === 'function') ? true : false;
+        assert.equal(true, result);
+    });
     it("expects 'this' to be a Promise");
     it("throws TypeError if 'this' is not a Promise");
     it("takes two arguments, both optional, both functions");
