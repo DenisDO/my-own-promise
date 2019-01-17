@@ -62,9 +62,15 @@ describe("25.4.5.3 Promise.prototype.then", function () {
         const result = (typeof Promise.prototype.then === 'function') ? true : false;
         assert.equal(true, result);
     });
-    it("expects 'this' to be a Promise");
+    it("expects 'this' to be a Promise", function() {
+        const p = new Promise(()=>{});
+        const p1 = p.then(()=>{});
+        assert.equal(true, p1 instanceof Promise);
+    });
     it("throws TypeError if 'this' is not a Promise");
-    it("takes two arguments, both optional, both functions");
+    it("takes two arguments, both optional, both functions", function() {
+        assert.equal(2, Promise.prototype.then.length);
+    });
     it("has default on resolve: identity");
     it("has default on reject: thrower", function (done) {
         var errorObject = {};
