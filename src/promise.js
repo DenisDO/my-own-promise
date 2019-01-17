@@ -11,7 +11,7 @@ class OwnPromise {
     this.callbacks = [];
 
     const reject = error => {
-      if (this.state !== 'PENDING') {
+      if (this.state !== PENDING) {
         return;
       }
 
